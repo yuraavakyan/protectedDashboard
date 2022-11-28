@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Link } from 'react-router-dom';
 
 const theme = createTheme();
 
@@ -76,6 +77,9 @@ const SignIn = () => {
             <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
               Sign In
             </Button>
+            <Typography>
+              Don't have an account? <Link to={'/signup'}>SignUp</Link>
+            </Typography>
           </Box>
         </Box>
       </Container>
