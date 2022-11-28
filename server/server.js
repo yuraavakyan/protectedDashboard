@@ -56,6 +56,21 @@ app.post('/users/login', async (req, res) => {
   }
 });
 
+app.post('/users/signup', async (req, res) => {
+  const { username, password, firstName, lastName } = req.body;
+  if(username && password && firstName && lastName){
+    users.push({
+      firstName, 
+      lastName, 
+      username, 
+      password: (await bcrypt.hash(password, 10)).toString()
+    })
+    res.status(200).json({success: true})
+  } else {
+    res.status(500).json({success: false})
+  }
+});
+
 app.get('/get-exam-results', authenticateToken, (req, res) => {
   res.json(examResults.filter(result => result.username === req.user.username))
 });
