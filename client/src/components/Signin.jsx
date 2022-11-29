@@ -60,7 +60,7 @@ const SignIn = () => {
               name='email'
               autoComplete='email'
               autoFocus
-              error={validationError}
+              error={!!validationError}
             />
             <TextField
               margin='normal'
@@ -71,7 +71,7 @@ const SignIn = () => {
               type='password'
               id='password'
               autoComplete='current-password'
-              error={validationError}
+              error={!!validationError}
               helperText={validationError}
             />
             <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>

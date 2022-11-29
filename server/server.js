@@ -1,8 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
 require('dotenv').config({ path: require('find-config')('.env') })
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.MONGODB_URL);
+const db = mongoose.connection;
+
+db.on('error', (e) => console.error(e))
+db.once('open', () => console.log('Connection established'))
 
 const app = express();
 
@@ -11,70 +16,10 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const users = [{
-  username: 'username',
-  password: bcrypt.hash('password', 10).toString()
-}];
+const usersRouter = require('./routes/users');
+app.use('/users', usersRouter);
 
-const examResults = [
-  {
-    username: 'username',
-    score: 9,
-  },
-  {
-    username: 'hakob',
-    score: 5,
-  },
-  {
-    username: 'Nairi',
-    score: 8
-  }
-]
-
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]
-  if (!token) res.status(401).send('no token')
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.status(403).send('you are not authorized to see this page')
-    req.user = user;
-    next();
-  })
-}
-
-app.post('/users/login', async (req, res) => {
-  const { username, password } = req.body;
-  const user = users.find((user) => user.username === username);
-  if (!user) {
-    return res.status(500).send('username or passowrd is incorrect')
-  }
-  if (bcrypt.compare(password, user?.password)) {
-    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-    res.status(200).json({ accessToken });
-  } else {
-    res.status(500).send('username or passowrd is incorrect')
-  }
-});
-
-app.post('/users/signup', async (req, res) => {
-  const { username, password, firstName, lastName } = req.body;
-  if(username && password && firstName && lastName){
-    users.push({
-      firstName, 
-      lastName, 
-      username, 
-      password: (await bcrypt.hash(password, 10)).toString()
-    })
-    res.status(200).json({success: true})
-  } else {
-    res.status(500).json({success: false})
-  }
-});
-
-app.get('/get-exam-results', authenticateToken, (req, res) => {
-  res.json(examResults.filter(result => result.username === req.user.username))
-});
-
-
+const examResultsRouter = require('./routes/examResults')
+app.use('/exam-results', examResultsRouter);
 
 app.listen(5000, () => console.log('server has started on 5000'));

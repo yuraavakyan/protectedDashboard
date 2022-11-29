@@ -35,11 +35,24 @@ const Dashboard = () => {
       setAuthenticated(true);
       axios({
         method: "GET",
-        url: 'http://localhost:5000/get-exam-results',
+        url: 'http://localhost:5000/exam-results',
         headers: {
           authorization: `Bearer ${accessToken}`
         }
       }).then(res => setScore(res.data[0].score))
+
+      //       axios({
+      //   method: "POST",
+      //   url: 'http://localhost:5000/exam-results',
+      //   // headers: {
+      //   //   authorization: `Bearer ${accessToken}`
+      //   // },
+      //   data: {
+      //     userId: '63860f9f70007d5bd815004c',
+      //     score: 8
+      //   }
+      // }).then(res => setScore(res.data[0].score))
+      
     }
 
   }, [authenticated])
