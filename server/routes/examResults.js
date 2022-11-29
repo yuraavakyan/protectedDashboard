@@ -26,8 +26,6 @@ const authenticateToken = (req, res, next) => {
 }
 
 router.get('/', [authenticateToken, getExamResults], async (req, res) => {
-    console.log(req.user)
-    console.log(res.results)
   res.json(res.results.filter(result => result.userId === req.user._id))
 })
 
