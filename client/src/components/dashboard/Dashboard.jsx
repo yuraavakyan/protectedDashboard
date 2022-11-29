@@ -137,7 +137,9 @@ const Dashboard = () => {
                     height: 140,
                   }}
                 >
-                  <React.Fragment>
+                  {
+                    score ? (
+                      <React.Fragment>
                     <Title>Exam results</Title>
                     <Typography color="text.secondary">
                       your score is:
@@ -149,6 +151,11 @@ const Dashboard = () => {
                       PASSED
                     </Typography>
                   </React.Fragment>
+                    ) : (
+                      <Typography> Sorry, you have no exam scores yet...</Typography>
+                    )
+                  }
+                  
                 </Paper>
               </Grid>
             </Grid>
