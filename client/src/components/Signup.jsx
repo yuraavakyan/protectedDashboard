@@ -23,7 +23,7 @@ const SignUp = () => {
         // eslint-disable-next-line no-console
         axios({
             method: 'POST',
-            url: 'http://localhost:5000/users',
+            url: 'http://localhost:5001/users',
             headers: 'Content-Type: application/json',
             data: {
                 firstName: data.get('firstName'),
@@ -45,7 +45,7 @@ const SignUp = () => {
     useEffect(() => {
         axios({
             method: "GET",
-            url: 'http://localhost:5000/users'
+            url: 'http://localhost:5001/users'
         })
     }, [])
 

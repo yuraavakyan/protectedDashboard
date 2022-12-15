@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { Navigate } from 'react-router';
 import Button from '@mui/material/Button';
@@ -19,73 +19,75 @@ const SignIn = () => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
-      axios({
-        method: 'POST',
-        url: 'http://localhost:5000/users/login',
-        headers: 'Content-Type: application/json',
-        data: {
-          username: data.get('email'),
-          password: data.get('password'),
-        },
-      }).then(res => {
-          localStorage.setItem("accessToken", res?.data?.accessToken);
-          setLoggedin(true)
-      }).catch((e) => setValidationError(e.response?.data));
+    axios({
+      method: 'POST',
+      url: 'http://localhost:5001/users/login',
+      headers: 'Content-Type: application/json',
+      data: {
+        username: data.get('email'),
+        password: data.get('password'),
+      },
+    }).then(res => {
+      localStorage.setItem("accessToken", res?.data?.accessToken);
+      localStorage.setItem('username', res.data?.username);
+      localStorage.setItem('userId', res?.data?.userId);
+      setLoggedin(true)
+    }).catch((e) => setValidationError(e.response?.data));
   };
 
   return (
     !loggedin ? (
       <ThemeProvider theme={theme}>
-      <Container component='main' maxWidth='xs'>
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Typography component='h1' variant='h5'>
-            Sign in
-          </Typography>
-          <Typography >{validationError}</Typography>
-          <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin='normal'
-              required
-              fullWidth
-              id='email'
-              label='Email Address'
-              name='email'
-              autoComplete='email'
-              autoFocus
-              error={!!validationError}
-            />
-            <TextField
-              margin='normal'
-              required
-              fullWidth
-              name='password'
-              label='Password'
-              type='password'
-              id='password'
-              autoComplete='current-password'
-              error={!!validationError}
-              helperText={validationError}
-            />
-            <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
-              Sign In
-            </Button>
-            <Typography>
-              Don't have an account? <Link to={'/signup'}>SignUp</Link>
+        <Container component='main' maxWidth='xs'>
+          <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Typography component='h1' variant='h5'>
+              Sign in
             </Typography>
+            <Typography >{validationError}</Typography>
+            <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+              <TextField
+                margin='normal'
+                required
+                fullWidth
+                id='email'
+                label='Email Address'
+                name='email'
+                autoComplete='email'
+                autoFocus
+                error={!!validationError}
+              />
+              <TextField
+                margin='normal'
+                required
+                fullWidth
+                name='password'
+                label='Password'
+                type='password'
+                id='password'
+                autoComplete='current-password'
+                error={!!validationError}
+                helperText={validationError}
+              />
+              <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
+                Sign In
+              </Button>
+              <Typography>
+                Don't have an account? <Link to={'/signup'}>SignUp</Link>
+              </Typography>
+            </Box>
           </Box>
-        </Box>
-      </Container>
-    </ThemeProvider>
+        </Container>
+      </ThemeProvider>
     ) : (
-      <Navigate replace to={'/dashboard'}/>
+      <Navigate replace to={'/dashboard'} />
     )
   );
 };

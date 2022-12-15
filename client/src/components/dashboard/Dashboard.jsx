@@ -1,167 +1,103 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Navigate } from 'react-router';
-
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import LogoutIcon from '@mui/icons-material/Logout';
-
-import Title from './Title';
-import { AppBar, Drawer } from './styled';
+import { Box, Button, Card, Container, TextField, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const Dashboard = () => {
-  const [score, setScore] = useState(null);
-  const [open, setOpen] = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [newPost, setNewPost] = useState({})
   const [authenticated, setAuthenticated] = useState(localStorage.getItem('accessToken'));
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   useEffect(() => {
+    axios({
+      method: "GET",
+      url: 'http://localhost:5001/posts',
+      headers: 'Content-Type: application/json',
+    }).then(res => setPosts(res.data))
+
+    //       axios({
+    //   method: "POST",
+    //   url: 'http://localhost:5000/exam-results',
+    //   // headers: {
+    //   //   authorization: `Bearer ${accessToken}`
+    //   // },
+    //   data: {
+    //     userId: '63860f9f70007d5bd815004c',
+    //     score: 8
+    //   }
+    // }).then(res => setScore(res.data[0].score))
+
+  }, [newPost])
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
     const accessToken = localStorage.getItem('accessToken')
     if (accessToken) {
-      setAuthenticated(true);
+      const data = new FormData(event.currentTarget);
+      // eslint-disable-next-line no-console
       axios({
-        method: "GET",
-        url: 'http://localhost:5000/exam-results',
+        method: 'POST',
+        url: 'http://localhost:5001/posts',
         headers: {
           authorization: `Bearer ${accessToken}`
-        }
-      }).then(res => setScore(res.data[0].score))
-
-      //       axios({
-      //   method: "POST",
-      //   url: 'http://localhost:5000/exam-results',
-      //   // headers: {
-      //   //   authorization: `Bearer ${accessToken}`
-      //   // },
-      //   data: {
-      //     userId: '63860f9f70007d5bd815004c',
-      //     score: 8
-      //   }
-      // }).then(res => setScore(res.data[0].score))
-      
+        },
+        data: {
+          post: data.get('post'),
+        },
+      }).then(res => {
+        setNewPost(res)
+        data.set('post', '')
+      }).catch((e) => console.error(e));
     }
+  };
 
-  }, [authenticated])
-
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    setAuthenticated(false);
+  const handleDelete = (id) => {
+    const accessToken = localStorage.getItem('accessToken')
+    axios({
+      method: 'DELETE',
+      url: 'http://localhost:5001/posts',
+      headers: {
+        authorization: `Bearer ${accessToken}`
+      },
+      data: { id },
+    }).then((res) => setNewPost(res)).catch(e => console.error(e))
   }
+
+  const currentUser = localStorage.getItem('userId');
 
   return (
     authenticated ? (
-      <Box sx={{ display: 'flex' }}>
-        <AppBar position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: '24px'
-            }}
-          >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              Dashboard
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1],
-            }}
-          >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
-          <Divider />
-          <List>
-            <ListItem button onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
-        </Drawer>
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
-          }}
-        >
-          <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 140,
-                  }}
-                >
-                  {
-                    score ? (
-                      <React.Fragment>
-                    <Title>Exam results</Title>
-                    <Typography color="text.secondary">
-                      your score is:
-                    </Typography>
-                    <Typography component="p" variant="h4">
-                      {score} of 10
-                    </Typography>
-                    <Typography color="text.secondary" sx={{ flex: 1 }}>
-                      PASSED
-                    </Typography>
-                  </React.Fragment>
-                    ) : (
-                      <Typography> Sorry, you have no exam scores yet...</Typography>
-                    )
-                  }
-                  
-                </Paper>
-              </Grid>
-            </Grid>
-          </Container>
+      <Container sx={
+        {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start',
+          gap: '10px',
+          padding: '40px 60px'
+        }
+      }>
+        {
+          posts && posts.map(post => (
+            <Card key={post._id} sx={{ padding: '5px 15px', borderRadius: '5px', width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+              <div>
+                <Typography sx={{ fontSize: '12px', color: '#a96ea9' }}>{post.author ? post.author.firstName : 'hidden user'}</Typography>
+                <Typography variant='h6'>{post.post}</Typography>
+              </div>
+              {currentUser === post.author?._id && <DeleteIcon onClick={() => handleDelete(post._id)} />}
+            </Card>
+          ))
+        }
+        <Box component={'form'} onSubmit={handleSubmit}>
+          <TextField
+            id='post'
+            label='Post'
+            name='post'
+          />
+          <Button variant='contained' type={'submit'}>Publish</Button>
         </Box>
-      </Box>
+      </Container>
     ) : (
       <Navigate replace to={'/signin'} />
     )
