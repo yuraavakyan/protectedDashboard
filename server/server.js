@@ -22,4 +22,7 @@ app.use('/users', usersRouter);
 const examResultsRouter = require('./routes/examResults')
 app.use('/exam-results', examResultsRouter);
 
-app.listen(5000, () => console.log('server has started on 5000'));
+const postRouter = require('./routes/posts')
+app.use('/posts', postRouter)
+
+app.listen(5001, () => console.log('server has started on 5001'));

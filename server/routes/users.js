@@ -9,9 +9,9 @@ const getUser = async (req, res, next) => {
     let user;
     try {
         user = await User.findById(req.params.id)
-        if(!user) return res.status(404).json({message: 'no such user'})
+        if (!user) return res.status(404).json({ message: 'no such user' })
     } catch (e) {
-        return res.status(500).json({message: e.message})
+        return res.status(500).json({ message: e.message })
     }
     res.user = user
     next();
@@ -22,37 +22,37 @@ const getUsers = async (req, res, next) => {
     try {
         users = await User.find()
     } catch (e) {
-        res.status(500).json({message: e.message})
+        res.status(500).json({ message: e.message })
     }
     res.users = users
     next();
 }
 
 router.post('/login', getUsers, (req, res) => {
-    const {username, password} = req.body
-  const user = res.users.find((user) => user.username === username);
-  if (!user) {
-    return res.status(500).send('username or passowrd is incorrect')
-  }
-  if (bcrypt.compare(password, user?.password)) {
-    const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_TOKEN_SECRET)
-    res.status(200).json({ accessToken });
-  } else {
-    res.status(500).send('username or passowrd is incorrect')
-  }
+    const { username, password } = req.body
+    const user = res.users.find((user) => user.username === username);
+    if (!user) {
+        return res.status(500).send('username or passowrd is incorrect')
+    }
+    if (bcrypt.compare(password, user?.password)) {
+        const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_TOKEN_SECRET)
+        res.status(200).json({ accessToken, username: user.username, userId: user._id });
+    } else {
+        res.status(500).send('username or passowrd is incorrect')
+    }
 
 })
 
 router.get('/', getUsers, async (req, res) => {
-    res.json({users: res.users})
+    res.json({ users: res.users })
 })
 
 router.get('/:id', getUser, (req, res) => {
-    res.json({user: res.user})
+    res.json({ user: res.user })
 })
 
 router.post('/', async (req, res) => {
-    const {firstName, lastName, username, password} = req.body
+    const { firstName, lastName, username, password } = req.body
     const user = new User({
         firstName,
         lastName,
@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
         const newUser = await user.save();
         res.status(201).json(newUser)
     } catch (e) {
-        res.status(400).json({error: e.message})
+        res.status(400).json({ error: e.message })
     }
 })
 
